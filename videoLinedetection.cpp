@@ -111,13 +111,34 @@ int main(){
                 So we must download the matrix from the GPU.
             */
         }
-
+        vector<int> bounds;
+        for (size_t i=0; i < lines_gpu.size(); i++){
+            Vec4i l = lines_gpu[i];
+            if (l[1]>240 || l[3]>240){
+                if (l[0]>180 && l[0]<450)
+                    bounds.insert(bounds.begin(),i);
+            }
+        }
+        double l_avg = 0;
+        double r_avg = 0;
         for (size_t i = 0; i < lines_gpu.size(); ++i)
         {   
             //Create a vector of the first line vector in the lines_gpu vector array
             Vec4i l = lines_gpu[i];
             //Draw the vector using a BGR Scalar onto the dst_gpu matrix
-            line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
+            std::vector<int>::iterator it = std::find(bounds.begin(),bounds.end(),i);
+            if (it!=bounds.end()){
+                line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
+                if((l[1]-l[3]) / (l[0]-l[2]) > 0) {
+                    line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
+                } else {
+                    line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 255, 0), 3, LINE_AA);
+                }
+            }
+            else{
+                line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
+            }
+            //line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
         }
 
             cv::imshow("CSI Camera",src); //Show the original video
