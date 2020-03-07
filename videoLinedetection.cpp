@@ -122,32 +122,41 @@ int main(){
         vector<int> leftb,rightb,undef,zeroed; //Get vectors of all lines that have pos,neg,0,undef slopes
         for (size_t i=0; i <bounds.size();i++){ //Go through the bounds indexes and assign them to their own vectors
             Vec4i l = lines_gpu[bounds[i]];
-            if ((l[0]-l[2]!=0)&&((l[1]-l[3]) / (l[0]-l[2]) > 0)){ //Not null, but is pos slope (left sides, or right turning)
-                leftb.insert(bounds[i]);
+            if ((l[0]-l[2]!=0)&&((l[3]-l[1]) / double(l[0]-l[2]) > 0)){ //Not null, but is pos slope (left sides, or right turning)
+                leftb.insert(leftb.begin(),bounds[i]);
             }
-            else if ((l[0]-l[2]!=0)&&((l[1]-l[3]) / (l[0]-l[2]) < 0)){ //Not null, but is neg slope (right sides, or left turning)
-                rightb.insert(bounds[i]);
+            else if ((l[0]-l[2]!=0)&&((l[3]-l[1]) / double(l[0]-l[2]) < 0)){ //Not null, but is neg slope (right sides, or left turning)
+                rightb.insert(rightb.begin(),bounds[i]);
             }
-            else if (l[1]-l[3]!=0) zeroed.insert(bounds[i]); //is a slope of zero (Horizontal)
-            else undef.insert(bounds[i]); //is a slope of undefined (vertical)
+            else if (l[3]-l[1]!=0) zeroed.insert(zeroed.begin(),bounds[i]); //is a slope of zero (Horizontal)
+            else undef.insert(undef.begin(),bounds[i]); //is a slope of undefined (vertical)
 
 
         }
+        putText(dst_gpu, to_string(leftb.size()),Point(20,60),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
         //init avg values
         double l_avg = 0;
         double r_avg = 0;
         for (size_t i=0; i<leftb.size();i++){
             Vec4i l =lines_gpu[leftb[i]]; //Remember that leftb and rightb contain indexes of the respective lines in lines_gpu.
-            l_avg+=((l[1]-l[3])/(l[0]-l[2]));
+            l_avg+=atan2((l[3]-l[1]),((l[0]-l[2])));
         }
         for (size_t i=0; i<rightb.size();i++){
             Vec4i l =lines_gpu[rightb[i]];
-            r_avg+=((l[1]-l[3])/(l[0]-l[2]));
+            r_avg+=atan2((l[3]-l[1]),((l[0]-l[2])));
         }
-        l_avg=l_avg/leftb.size(); //Take averages after summations
-        r_avg=r_avg/rightb.size();
-        double true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
-
+        double true_avg = 0;
+        if(leftb.size() > 0) {
+            l_avg=l_avg/leftb.size(); //Take averages after summations
+            true_avg = l_avg;
+        }
+        if(rightb.size() > 0) {
+            r_avg=r_avg/rightb.size();
+            true_avg = r_avg;
+        }
+        if(leftb.size() > 0 && rightb.size() > 0)
+            true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
+        true_avg = -1 * true_avg * 180 / M_PI + 90;
         //Temp structured code for sending motor commands
         if (true_avg<0.1 && true_avg>-0.1){
             //Send drive straight command
@@ -158,7 +167,8 @@ int main(){
         else if (true_avg<=-0.1){
             //Send turn left by a factor of command
         }
-
+        //cout << true_avg;
+        putText(dst_gpu, to_string(true_avg),Point(20,20),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
         /*
         ------------------
         This forloop draws lines onto a visible matrix. Not needed for final product.
@@ -171,8 +181,8 @@ int main(){
             //Draw the vector using a BGR Scalar onto the dst_gpu matrix
             std::vector<int>::iterator it = std::find(bounds.begin(),bounds.end(),i);
             if (it!=bounds.end()){
-                line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
-                if((l[0]-l[2]!=0) && ((l[1]-l[3]) / (l[0]-l[2]) > 0)) {
+                //line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
+                if((l[0]-l[2]!=0) && ((l[3]-l[1]) / double(l[0]-l[2]) > 0)) {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
                 } else {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 255, 0), 3, LINE_AA);
