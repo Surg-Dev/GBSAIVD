@@ -34,7 +34,7 @@ int main(){
     int capture_height = 720 ;
     int display_width = 640 ;
     int display_height = 360 ;
-    int framerate = 10 ;
+    int framerate = 10 ; //Make sure to make framerate high enough for reaction, but low enough so you don't get delay!
     int flip_method = 0 ;
     
     //Pull gstreamer pipeline to make a string showing what parameters it is using in console
@@ -111,16 +111,59 @@ int main(){
                 So we must download the matrix from the GPU.
             */
         }
-        vector<int> bounds;
+        vector<int> bounds; //Get a vector of all lines within boundries
         for (size_t i=0; i < lines_gpu.size(); i++){
             Vec4i l = lines_gpu[i];
-            if (l[1]>240 || l[3]>240){
-                if (l[0]>180 && l[0]<450)
+            if (l[1]>240 || l[3]>240){ //Vertical Boundry
+                if (l[0]>180 && l[0]<450) // Horizontal Boundry
                     bounds.insert(bounds.begin(),i);
             }
         }
+        vector<int> leftb,rightb,undef,zeroed; //Get vectors of all lines that have pos,neg,0,undef slopes
+        for (size_t i=0; i <bounds.size();i++){ //Go through the bounds indexes and assign them to their own vectors
+            Vec4i l = lines_gpu[bounds[i]];
+            if ((l[0]-l[2]!=0)&&((l[1]-l[3]) / (l[0]-l[2]) > 0)){ //Not null, but is pos slope (left sides, or right turning)
+                leftb.insert(bounds[i]);
+            }
+            else if ((l[0]-l[2]!=0)&&((l[1]-l[3]) / (l[0]-l[2]) < 0)){ //Not null, but is neg slope (right sides, or left turning)
+                rightb.insert(bounds[i]);
+            }
+            else if (l[1]-l[3]!=0) zeroed.insert(bounds[i]); //is a slope of zero (Horizontal)
+            else undef.insert(bounds[i]); //is a slope of undefined (vertical)
+
+
+        }
+        //init avg values
         double l_avg = 0;
         double r_avg = 0;
+        for (size_t i=0; i<leftb.size();i++){
+            Vec4i l =lines_gpu[leftb[i]]; //Remember that leftb and rightb contain indexes of the respective lines in lines_gpu.
+            l_avg+=((l[1]-l[3])/(l[0]-l[2]));
+        }
+        for (size_t i=0; i<rightb.size();i++){
+            Vec4i l =lines_gpu[rightb[i]];
+            r_avg+=((l[1]-l[3])/(l[0]-l[2]));
+        }
+        l_avg=l_avg/leftb.size(); //Take averages after summations
+        r_avg=r_avg/rightb.size();
+        double true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
+
+        //Temp structured code for sending motor commands
+        if (true_avg<0.1 && true_avg>-0.1){
+            //Send drive straight command
+        }
+        else if (true_avg>=0.1){
+            //Send turn right by a factor of command
+        }
+        else if (true_avg<=-0.1){
+            //Send turn left by a factor of command
+        }
+
+        /*
+        ------------------
+        This forloop draws lines onto a visible matrix. Not needed for final product.
+        ------------------
+        */
         for (size_t i = 0; i < lines_gpu.size(); ++i)
         {   
             //Create a vector of the first line vector in the lines_gpu vector array
@@ -129,7 +172,7 @@ int main(){
             std::vector<int>::iterator it = std::find(bounds.begin(),bounds.end(),i);
             if (it!=bounds.end()){
                 line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
-                if((l[1]-l[3]) / (l[0]-l[2]) > 0) {
+                if((l[0]-l[2]!=0) && ((l[1]-l[3]) / (l[0]-l[2]) > 0)) {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
                 } else {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 255, 0), 3, LINE_AA);
