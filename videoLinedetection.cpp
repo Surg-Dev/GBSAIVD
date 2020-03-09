@@ -63,10 +63,10 @@ int main(){
     //Define source Matrix
     cv::Mat src;
 
-    Py_Initialize();
-    PyRun_SimpleString("from jetbot import Robot");
-    PyRun_SimpleString("robot = Robot()");
-    PyRun_SimpleString("robot.set_motors(.3,.3)");
+    Py_Initialize(); //start python interpreter
+    PyRun_SimpleString("from jetbot import Robot"); //import jetbot library [Temp, will be doing thru serial on arduino] 
+    PyRun_SimpleString("robot = Robot()"); //create robot object
+    PyRun_SimpleString("robot.set_motors(.3,.3)"); //start driving forward
     //Video loop
     while (true){
 
@@ -144,11 +144,11 @@ int main(){
         double r_avg = 0;
         for (size_t i=0; i<leftb.size();i++){
             Vec4i l =lines_gpu[leftb[i]]; //Remember that leftb and rightb contain indexes of the respective lines in lines_gpu.
-            l_avg+=atan2((l[3]-l[1]),((l[0]-l[2])));
+            l_avg+=atan2((l[3]-l[1]),((l[0]-l[2]))); //get the avg angle of the lines with pos sloves
         }
         for (size_t i=0; i<rightb.size();i++){
             Vec4i l =lines_gpu[rightb[i]];
-            r_avg+=atan2((l[3]-l[1]),((l[0]-l[2])));
+            r_avg+=atan2((l[3]-l[1]),((l[0]-l[2]))); //get avg angle of lines with neg slopes
         }
         double true_avg = 0;
         if(leftb.size() > 0) {
@@ -161,19 +161,20 @@ int main(){
         }
         if(leftb.size() > 0 && rightb.size() > 0)
             true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
-        true_avg = -1 * true_avg * 180 / M_PI + 90;
+        true_avg = -1 * true_avg * 180 / M_PI + 90; //get avg of both angles, and scale it from -90 to 90
         //Temp structured code for sending motor commands
         double chL = 0.0;
         double chR = 0.0;
         if (true_avg<0){
-            chL=(abs(true_avg)/90.0)*.3
+            chL = (abs(true_avg) / 90.0) * .3;
         }
         if (true_avg > 0) {
-            chR = (abs(true_avg) / 90.0) * .3
+            chR = (abs(true_avg) / 90.0) * .3;
         }
         chL = .3 - chL;
         chR = .3 - chR;
-        PyRun_SimpleString("robot.set_motors(" + chL + "," + chR + ")");
+        string output = "robot.set_motors(" + to_string(chL) + "," + to_String(chR) + ")"; //Set up the concat string from the python out
+        PyRun_SimpleString(output); //set motors based on output thru python
 
         //cout << true_avg;
         putText(dst_gpu, to_string(true_avg),Point(20,20),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
@@ -208,7 +209,7 @@ int main(){
             if (keycode == 27) break ;
 
         }
-    Py_Finalize();
+    Py_Finalize(); //close python interpreter
     cap.release(); //IMPORTANT! This must run before exiting any cpp program, or the camera will get stuck
     cv::destroyAllWindows() ; //Closes windows
     return 0; //Returns with no intended error.
