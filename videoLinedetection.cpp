@@ -11,7 +11,7 @@
 // Standard cpp libraries, equivilents are like numpy
 #include <iostream>
 #include <cmath>
-#include <Python.h>
+#include "python3.6/Python.h"
 
 //Using namespaces, std can usually be ignorned, but cv and cv::cuda have overloaded functions
 using namespace std;
