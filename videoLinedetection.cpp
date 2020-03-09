@@ -11,6 +11,8 @@
 // Standard cpp libraries, equivilents are like numpy
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <cstring>
 #include "python3.6/Python.h"
 
 //Using namespaces, std can usually be ignorned, but cv and cv::cuda have overloaded functions
@@ -174,7 +176,9 @@ int main(){
         chL = .3 - chL;
         chR = .3 - chR;
         string output = "robot.set_motors(" + to_string(chL) + "," + to_string(chR) + ")"; //Set up the concat string from the python out
-        PyRun_SimpleString(c_str(output)); //set motors based on output thru python
+        char cstr[output.size() + 1];
+        strcpy(cstr, output.c_str());
+        PyRun_SimpleString(cstr); //set motors based on output thru python
 
         //cout << true_avg;
         putText(dst_gpu, to_string(true_avg),Point(20,20),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
