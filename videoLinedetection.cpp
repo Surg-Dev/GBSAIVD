@@ -173,7 +173,7 @@ int main(){
         }
         chL = .3 - chL;
         chR = .3 - chR;
-        string output = "robot.set_motors(" + to_string(chL) + "," + to_String(chR) + ")"; //Set up the concat string from the python out
+        char output[500] = "robot.set_motors(" + to_string(chL) + "," + to_String(chR) + ")"; //Set up the concat string from the python out
         PyRun_SimpleString(output); //set motors based on output thru python
 
         //cout << true_avg;
