@@ -173,8 +173,8 @@ int main(){
         }
         chL = .3 - chL;
         chR = .3 - chR;
-        char output[500] = "robot.set_motors(" + to_string(chL) + "," + to_string(chR) + ")"; //Set up the concat string from the python out
-        PyRun_SimpleString(output); //set motors based on output thru python
+        string output = "robot.set_motors(" + to_string(chL) + "," + to_string(chR) + ")"; //Set up the concat string from the python out
+        PyRun_SimpleString(c_str(output)); //set motors based on output thru python
 
         //cout << true_avg;
         putText(dst_gpu, to_string(true_avg),Point(20,20),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
