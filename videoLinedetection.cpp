@@ -11,6 +11,7 @@
 // Standard cpp libraries, equivilents are like numpy
 #include <iostream>
 #include <cmath>
+#include <Python.h>
 
 //Using namespaces, std can usually be ignorned, but cv and cv::cuda have overloaded functions
 using namespace std;
@@ -62,6 +63,10 @@ int main(){
     //Define source Matrix
     cv::Mat src;
 
+    Py_Initialize();
+    PyRun_SimpleString("from jetbot import Robot");
+    PyRun_SimpleString("robot = Robot()");
+    PyRun_SimpleString("robot.set_motors(.3,.3)");
     //Video loop
     while (true){
 
@@ -158,15 +163,18 @@ int main(){
             true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
         true_avg = -1 * true_avg * 180 / M_PI + 90;
         //Temp structured code for sending motor commands
-        if (true_avg<0.1 && true_avg>-0.1){
-            //Send drive straight command
+        double chL = 0.0;
+        double chR = 0.0;
+        if (true_avg<0){
+            chL=(abs(true_avg)/90.0)*.3
         }
-        else if (true_avg>=0.1){
-            //Send turn right by a factor of command
+        if (true_avg > 0) {
+            chR = (abs(true_avg) / 90.0) * .3
         }
-        else if (true_avg<=-0.1){
-            //Send turn left by a factor of command
-        }
+        chL = .3 - chL;
+        chR = .3 - chR;
+        PyRun_SimpleString("robot.set_motors(" + chL + "," + chR + ")");
+
         //cout << true_avg;
         putText(dst_gpu, to_string(true_avg),Point(20,20),FONT_HERSHEY_SIMPLEX,0.6,Scalar(255,255,0));
         /*
@@ -200,6 +208,7 @@ int main(){
             if (keycode == 27) break ;
 
         }
+    Py_Finalize();
     cap.release(); //IMPORTANT! This must run before exiting any cpp program, or the camera will get stuck
     cv::destroyAllWindows() ; //Closes windows
     return 0; //Returns with no intended error.
