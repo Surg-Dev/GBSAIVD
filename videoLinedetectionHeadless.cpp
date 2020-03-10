@@ -37,7 +37,7 @@ int main(){
     int capture_height = 720 ;
     int display_width = 640 ;
     int display_height = 360 ;
-    int framerate = 1 ; //Make sure to make framerate high enough for reaction, but low enough so you don't get delay!
+    int framerate = 10; //Make sure to make framerate high enough for reaction, but low enough so you don't get delay!
     int flip_method = 0 ;
     
     //Pull gstreamer pipeline to make a string showing what parameters it is using in console
@@ -59,8 +59,8 @@ int main(){
     }
 
     //Define display windows, temporary, not needed for headless
-    cv::namedWindow("CSI Camera", cv::WINDOW_AUTOSIZE);
-    cv::namedWindow("Line Camera", cv::WINDOW_AUTOSIZE);
+    //cv::namedWindow("CSI Camera", cv::WINDOW_AUTOSIZE);
+    //cv::namedWindow("Line Camera", cv::WINDOW_AUTOSIZE);
     
     //Define source Matrix
     cv::Mat src;
@@ -210,8 +210,8 @@ int main(){
             //line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 0, 255), 3, LINE_AA);
         }
 
-            cv::imshow("CSI Camera",src); //Show the original video
-            cv::imshow("Line Camera",dst_gpu); // Show the line detection video
+        //    cv::imshow("CSI Camera",src); //Show the original video
+      //      cv::imshow("Line Camera",dst_gpu); // Show the line detection video
 	        int keycode = cv::waitKey(30) & 0xff ; //Break key logic.
             if (keycode == 27) break ;
 
