@@ -170,9 +170,10 @@ int main(){
             rx_avg=rx_avg/rightb.size();
             lane_x = rx_avg;
         }
-        if(leftb.size() > 0 && rightb.size() > 0)
+        if(leftb.size() > 0 && rightb.size() > 0) {
             true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
             lane_x = (lx_avg+rx_avg)/2.0;
+        }
         true_avg = -1 * true_avg * 180 / M_PI + 90; //get avg of both angles, and scale it from -90 to 90
 	    if(true_avg == 90.0) {
 	        true_avg=0;
