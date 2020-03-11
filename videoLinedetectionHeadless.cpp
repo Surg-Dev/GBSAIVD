@@ -212,13 +212,14 @@ int main(){
 
         //    cv::imshow("CSI Camera",src); //Show the original video
       //      cv::imshow("Line Camera",dst_gpu); // Show the line detection video
-	        int keycode = cv::waitKey(30) & 0xff ; //Break key logic.
-            if (keycode == 27) break ;
+//	        int keycode = cv::waitKey(30) & 0xff ; //Break key logic.
+ ////+           if (keycode == 27) break ;
 
         }
+    PyRun_SimpleString("robot.stop()");
     Py_Finalize(); //close python interpreter
     cap.release(); //IMPORTANT! This must run before exiting any cpp program, or the camera will get stuck
-    cv::destroyAllWindows() ; //Closes windows
+  //  cv::destroyAllWindows() ; //Closes windows
     return 0; //Returns with no intended error.
 
 }
