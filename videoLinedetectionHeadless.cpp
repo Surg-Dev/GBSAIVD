@@ -178,13 +178,16 @@ int main(){
 	    if(true_avg == 90.0) {
 	        true_avg=0;
 	    }
-        
-        if(lane_x < 300) {
+        if(leftb.size() > 0 && lx_avg > 250)
+            true_avg += 45.0;
+        if(leftb.size() > 0 && rx_avg < 390)
+            true_avg -= 45.0;
+        /*if(lane_x < 300) {
             true_avg -= 45.0;
         }
         if(lane_x > 340) {
             true_avg += 45.0;
-        }
+        }*/
         //Temp structured code for sending motor commands
         double chL = 0.0;
         double chR = 0.0;
