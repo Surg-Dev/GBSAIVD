@@ -144,29 +144,46 @@ int main(){
         //init avg values
         double l_avg = 0;
         double r_avg = 0;
+        double lx_avg = 0;
+        double rx_avg = 0;
         for (size_t i=0; i<leftb.size();i++){
             Vec4i l =lines_gpu[leftb[i]]; //Remember that leftb and rightb contain indexes of the respective lines in lines_gpu.
             l_avg+=atan2((l[3]-l[1]),((l[0]-l[2]))); //get the avg angle of the lines with pos sloves
+            lx_avg+=(l[0] + l[2]) / 2.0; 
         }
         for (size_t i=0; i<rightb.size();i++){
             Vec4i l =lines_gpu[rightb[i]];
             r_avg+=atan2((l[3]-l[1]),((l[0]-l[2]))); //get avg angle of lines with neg slopes
+            rx_avg+=(l[0] + l[2]) / 2.0; 
         }
         double true_avg = 0;
+        double lane_x = 320;
         if(leftb.size() > 0) {
             l_avg=l_avg/leftb.size(); //Take averages after summations
             true_avg = l_avg;
+            lx_avg=lx_avg/leftb.size();
+            lane_x = lx_avg;
         }
         if(rightb.size() > 0) {
             r_avg=r_avg/rightb.size();
             true_avg = r_avg;
+            rx_avg=rx_avg/rightb.size();
+            lane_x = rx_avg;
         }
         if(leftb.size() > 0 && rightb.size() > 0)
             true_avg = (l_avg+r_avg)/2.0; //init and assign the true average.
+            lane_x = (lx_avg+rx_avg)/2.0;
         true_avg = -1 * true_avg * 180 / M_PI + 90; //get avg of both angles, and scale it from -90 to 90
-	if(true_avg == 90.0) {
-	    true_avg=0;
-	}
+	    if(true_avg == 90.0) {
+	        true_avg=0;
+	    }
+        
+        if(lane_x < 300) {
+            true_avg -= 10.0;
+        }
+        if(lane_x > 340) {
+            true_avg += 10.0;
+        }
         //Temp structured code for sending motor commands
         double chL = 0.0;
         double chR = 0.0;
@@ -200,6 +217,7 @@ int main(){
                 //line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
                 if((l[0]-l[2]!=0) && ((l[3]-l[1]) / double(l[0]-l[2]) > 0)) {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(255, 0, 255), 3, LINE_AA);
+                    
                 } else {
                     line(dst_gpu, Point(l[0], l[1]), Point(l[2], l[3]), Scalar(0, 255, 0), 3, LINE_AA);
                 }
