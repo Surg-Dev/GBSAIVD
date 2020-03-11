@@ -178,9 +178,9 @@ int main(){
 	    if(true_avg == 90.0) {
 	        true_avg=0;
 	    }
-        if(leftb.size() > 0 && lx_avg > 250)
+        if(leftb.size() > 0 && lx_avg > 180)
             true_avg += 90.0;
-        if(rightb.size() > 0 && rx_avg < 390)
+        if(rightb.size() > 0 && rx_avg < 460)
             true_avg -= 90.0;
         /*if(lane_x < 300) {
             true_avg -= 45.0;
