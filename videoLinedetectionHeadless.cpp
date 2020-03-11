@@ -179,10 +179,10 @@ int main(){
 	    }
         
         if(lane_x < 300) {
-            true_avg -= 10.0;
+            true_avg -= 30.0;
         }
         if(lane_x > 340) {
-            true_avg += 10.0;
+            true_avg += 30.0;
         }
         //Temp structured code for sending motor commands
         double chL = 0.0;
