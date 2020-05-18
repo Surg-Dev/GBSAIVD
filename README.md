@@ -18,7 +18,7 @@ Use /misc/compile.sh to compile any cpp file, as it will include all required li
 If you include another library in the cpp file, make sure to include it in the compile command (this should've worked automatically, but
 Tegra linux is borked).
 
-The Navigation script is a WIP but accesses both the magnetometer and the GPS to recieve data. Unfortuneately, I ran into issues
+The Navigation script is a WIP but accesses both the magnetometer and the GPS to recieve data. Unfortunately, I ran into issues
 syncing up the information calls, leading to inaccurate data.
 Look into TinyGPS++ and the MPU9250 library for info on how to poll data from these devices.
 This absolutely will require a 2nd arduino on board, as one arduino cannot handle the size of this script and the information
