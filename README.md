@@ -1,6 +1,10 @@
 # GBSAIVD
 Code Repo for GBS' AIVD Jetson Nano
 
+Note, due to the fact that this code had to compile and run on a microcontroller SBC, this acts as both the source code and file repo for this project.
+
+Explained below is for remaining members of the AVID Team for 2020-2021 at GBS High School:
+
 VLDHeadless.cpp is the main and fastest line recognition code in the repo. All other versions and compiles spend
 resources uploading to screen and using display. Additionally, there is some python running to get the Jetbot motors working.
 These motor calls were tweaked and still have left lane bias.
